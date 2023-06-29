@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+//use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Illuminate\Component\HttpKernel\Exception\UnauthrizedHttpException;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
+
+
+class JWTRoleAuth extends BaseMiddleware
+{
+    public function handle($request,Closure $next,$role = null)
+    {
+        try{
+            $token_role = $this->auth->parseToken()->getClaim('role');
+        }catch(JWTException $e){
+
+            return response()->json(['error' => 'Unauthenticated'],401);
+        }
+        if ($token_role != $role){
+            return response()->json(['error' => 'Unauthenticated'],401);
+        }
+        return $next($request);
+    }
+}
